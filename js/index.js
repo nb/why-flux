@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 var API = {
-	posts: function(cb) {
+	featured: function(cb) {
 		cb( [
 			{title: 'Best Scrambled Sunnyside ups', author: 'Willie Wonka'},
 			{title: 'askjhd kjsahd akjshasdk', author: 'Peter Gabriel'}
@@ -12,13 +12,13 @@ var App = React.createClass( {
 	render: function() {
 		return (
 			<div>
-				<Posts />
+				<FeaturedPosts />
 			</div>
 		);
 	}
 } );
 
-var Posts = React.createClass( {
+var FeaturedPosts = React.createClass( {
 	getInitialState: function() {
 		return {
 			posts: []
@@ -28,7 +28,7 @@ var Posts = React.createClass( {
 		this.load();
 	},
 	load: function() {
-		API.posts( function( posts ) {
+		API.featured( function( posts ) {
 			this.setState( { posts: posts } );
 		}.bind( this ) );
 	},
