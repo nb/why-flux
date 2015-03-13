@@ -1,0 +1,14 @@
+{
+  "name": "whys",
+  "version": "0.0.1",
+  "description": "babaabb",
+  "main": "lib/index.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "jsxc": "0.10.0"
+  },
+  "scripts": {
+    "start": "jsxc --watch js/ dist/"
+  }
+}
