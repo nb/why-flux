@@ -40,19 +40,14 @@ var FeaturedPosts = React.createClass( {
 		}.bind( this ) );
 	},
 	render: function() {
-		return (
-			<div className="posts">
-				{
-					this.state.posts.map( function( post ) {
-						return <Post post={ post } />;
-					} )
-				}
-			</div>
-		);
+		return <Posts posts={ this.state.posts } />;
 	}
 } );
 
 var LatestPosts = React.createClass( {
+	propTypes: {
+		children: React.PropTypes.element.isRequired
+	},
 	getInitialState: function() {
 		return {
 			posts: []
@@ -67,10 +62,16 @@ var LatestPosts = React.createClass( {
 		}.bind( this ) );
 	},
 	render: function() {
+		return <Posts posts={ this.state.posts } />;
+	}
+} );
+
+var Posts = React.createClass( {
+	render: function() {
 		return (
 			<div className="posts">
 				{
-					this.state.posts.map( function( post ) {
+					this.props.posts.map( function( post ) {
 						return <Post post={ post } />;
 					} )
 				}
