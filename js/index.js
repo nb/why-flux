@@ -2,14 +2,14 @@
 var API = {
 	featured: function(cb) {
 		cb( [
-			{title: 'Best Scrambled Sunnyside ups', author: 'Willie Wonka'},
-			{title: 'askjhd kjsahd akjshasdk', author: 'Peter Gabriel'}
+			{title: 'Best Scrambled Sunnyside ups', author: 'Willie Wonka', likes: 5},
+			{title: 'askjhd kjsahd akjshasdk', author: 'Peter Gabriel', likes: 2}
 		] );
 	},
 	latest: function(cb) {
 		cb( [
-			{title: 'News is on the road', author: 'Willie Wonka'},
-			{title: 'Bobo is fun again', author: 'Peter Gabriel'}
+			{title: 'News is on the road', author: 'Willie Wonka', likes: 0},
+			{title: 'Bobo is fun again', author: 'Peter Gabriel', likes: 1}
 		] );
 	}
 };
@@ -81,11 +81,15 @@ var Posts = React.createClass( {
 } );
 
 var Post = React.createClass( {
+	onLike: function() {
+		alert( 'Like!' );
+	},
 	render: function() {
 		return (
 			<section className="post">
 				<h1>{ this.props.post.title }</h1>
 				<h2>by { this.props.post.author }</h2>
+				{ this.props.post.likes } people liked this post <button onClick={ this.onLike }>Like “{ this.props.post.title }”</button>
 			</section>
 		);
 	}
