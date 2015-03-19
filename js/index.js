@@ -1,4 +1,19 @@
 /** @jsx React.DOM */
+var PostsStore = function() {
+	this.posts = {};
+	this.changeCallbacks = [];
+};
+PostsStore.prototype.registerChangeCallback = function( callback ) {
+	this.changeCallbacks.push( callback );
+};
+PostsStore.prototype.merge = function( newPosts ) {
+	newPosts.forEach( function( post ) {
+		this.posts[ post.id ] = post;
+	}.bind( this ) );
+	this.changeCallbacks.forEach( function( callback ) {
+		setTimeout( callback, 0 );
+	} );
+};
 var App = React.createClass( {
 	render: function() {
 		return (
@@ -14,34 +29,42 @@ var App = React.createClass( {
 	}
 } );
 
+var postsStore = new PostsStore();
+
 var FeaturedPosts = React.createClass( {
 	getInitialState: function() {
 		return {
+			postIds: [],
 			posts: []
 		};
 	},
 	componentWillMount: function() {
 		this.load();
+		postsStore.registerChangeCallback( this.onPostChange );
+	},
+	onPostChange: function() {
+		this.forceUpdate();
 	},
 	load: function() {
 		API.featured( function( posts ) {
-			this.setState( { posts: posts } );
+			this.setState( {
+				postIds: posts.map( function( post ) {
+		   			return post.id;
+				} )
+			} );
+			postsStore.merge( posts );
 		}.bind( this ) );
 	},
 	onPostLike: function( post ) {
 		API.like( post.id, function( updatedPost ) {
-			this.setState( {
-				posts: this.state.posts.map( function( post ) {
-					if ( post.id === updatedPost.id ) {
-						return updatedPost;
-					}
-					return post;
-				} )
-			} );
+			postsStore.merge( [ updatedPost ] );
 		}.bind( this ) );
 	},
 	render: function() {
-		return <Posts posts={ this.state.posts } onPostLike={ this.onPostLike } />;
+		var posts = this.state.postIds.map( function( id ) {
+			return postsStore.posts[ id ];
+		} );
+		return <Posts posts={ posts } onPostLike={ this.onPostLike } />;
 	}
 } );
 
@@ -51,31 +74,36 @@ var LatestPosts = React.createClass( {
 	},
 	getInitialState: function() {
 		return {
-			posts: []
+			postIds: []
 		};
 	},
 	componentWillMount: function() {
 		this.load();
+		postsStore.registerChangeCallback( this.onPostChange );
+	},
+	onPostChange: function() {
+		this.forceUpdate();
 	},
 	load: function() {
-		API.latest( function( posts ) {
-			this.setState( { posts: posts } );
+		API.featured( function( posts ) {
+			this.setState( {
+				postIds: posts.map( function( post ) {
+		   			return post.id;
+				} )
+			} );
+			postsStore.merge( posts );
 		}.bind( this ) );
 	},
 	onPostLike: function( post ) {
 		API.like( post.id, function( updatedPost ) {
-			this.setState( {
-				posts: this.state.posts.map( function( post ) {
-					if ( post.id === updatedPost.id ) {
-						return updatedPost;
-					}
-					return post;
-				} )
-			} );
+			postsStore.merge( [ updatedPost ] );
 		}.bind( this ) );
 	},
 	render: function() {
-		return <Posts posts={ this.state.posts } onPostLike={ this.onPostLike } />;
+		var posts = this.state.postIds.map( function( id ) {
+			return postsStore.posts[ id ];
+		} );
+		return <Posts posts={ posts } onPostLike={ this.onPostLike } />;
 	}
 } );
 
