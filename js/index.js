@@ -1,33 +1,13 @@
 /** @jsx React.DOM */
-var API = {
-	featured: function(cb) {
-		cb( [
-			{id: 1, title: 'Best Scrambled Sunnyside ups', author: 'Willie Wonka', likes: 5},
-			{id: 2,title: 'askjhd kjsahd akjshasdk', author: 'Peter Gabriel', likes: 2}
-		] );
-	},
-	latest: function(cb) {
-		cb( [
-			{id: 3, title: 'News is on the road', author: 'Willie Wonka', likes: 0},
-			{id: 4, title: 'Bobo is fun again', author: 'Peter Gabriel', likes: 1},
-			{id: 2,title: 'askjhd kjsahd akjshasdk', author: 'Peter Gabriel', likes: 2}
-		] );
-	},
-	like: function( post, cb ) {
-		cb ( {
-			id: post.id,
-			title: post.title,
-			author: post.author,
-			likes: post.likes + 1
-		} );
-	}
-};
-
 var App = React.createClass( {
 	render: function() {
 		return (
 			<div>
+				<h1>Featured Posts</h1>
+				<hr />
 				<FeaturedPosts />
+				<h1>Latest Posts</h1>
+				<hr />
 				<LatestPosts />
 			</div>
 		);
@@ -49,7 +29,7 @@ var FeaturedPosts = React.createClass( {
 		}.bind( this ) );
 	},
 	onPostLike: function( post ) {
-		API.like( post, function( updatedPost ) {
+		API.like( post.id, function( updatedPost ) {
 			this.setState( {
 				posts: this.state.posts.map( function( post ) {
 					if ( post.id === updatedPost.id ) {
@@ -83,7 +63,7 @@ var LatestPosts = React.createClass( {
 		}.bind( this ) );
 	},
 	onPostLike: function( post ) {
-		API.like( post, function( updatedPost ) {
+		API.like( post.id, function( updatedPost ) {
 			this.setState( {
 				posts: this.state.posts.map( function( post ) {
 					if ( post.id === updatedPost.id ) {
