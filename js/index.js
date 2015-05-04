@@ -20,10 +20,14 @@ var App = React.createClass( {
 			<div>
 				<h1>Featured Posts</h1>
 				<hr />
-				<FeaturedPosts />
+				<PostsFetcher filter="featured">
+					<Posts />
+				</PostsFetcher>
 				<h1>Latest Posts</h1>
 				<hr />
-				<LatestPosts />
+				<PostsFetcher filter="latest">
+					<Posts />
+				</PostsFetcher>
 			</div>
 		);
 	}
@@ -31,52 +35,32 @@ var App = React.createClass( {
 
 var postsStore = new PostsStore();
 
-var FeaturedPosts = React.createClass( {
-	getInitialState: function() {
-		return {
-			postIds: [],
-			posts: []
-		};
-	},
-	componentWillMount: function() {
-		this.load();
-		postsStore.registerChangeCallback( this.onPostChange );
-	},
-	onPostChange: function() {
-		this.forceUpdate();
-	},
-	load: function() {
-		API.featured( function( posts ) {
-			this.setState( {
-				postIds: posts.map( function( post ) {
-		   			return post.id;
-				} )
-			} );
-			postsStore.merge( posts );
-		}.bind( this ) );
-	},
-	onPostLike: function( post ) {
-		API.like( post.id, function( updatedPost ) {
-			postsStore.merge( [ updatedPost ] );
-		}.bind( this ) );
-	},
-	render: function() {
-		var posts = this.state.postIds.map( function( id ) {
-			return postsStore.posts[ id ];
-		} );
-		return <Posts posts={ posts } onPostLike={ this.onPostLike } />;
-	}
-} );
-
-var LatestPosts = React.createClass( {
+var PostsFetcher = React.createClass( {
 	propTypes: {
-		children: React.PropTypes.element.isRequired
+		children: React.PropTypes.element.isRequired,
+		filter: React.PropTypes.string
 	},
-	getInitialState: function() {
-		return {
-			postIds: []
-		};
+	callByFilter: {
+		featured: API.featured,
+		latest: API.latest,
+		default: API.latest
 	},
+	load: function() {
+		var apiCall = this.callByFilter[ this.props.filter ] || this.callByFilter.default;
+		apiCall( function( posts ) {
+			this.setState( {
+				postIds: posts.map( function( post ) {
+					return post.id;
+				} )
+			} );
+			postsStore.merge( posts );
+		}.bind( this ) );
+	},
+    onPostLike: function( post ) {
+        API.like( post.id, function( updatedPost ) {
+            postsStore.merge( [ updatedPost ] );
+        } );
+    },
 	componentWillMount: function() {
 		this.load();
 		postsStore.registerChangeCallback( this.onPostChange );
@@ -84,26 +68,14 @@ var LatestPosts = React.createClass( {
 	onPostChange: function() {
 		this.forceUpdate();
 	},
-	load: function() {
-		API.featured( function( posts ) {
-			this.setState( {
-				postIds: posts.map( function( post ) {
-		   			return post.id;
-				} )
-			} );
-			postsStore.merge( posts );
-		}.bind( this ) );
-	},
-	onPostLike: function( post ) {
-		API.like( post.id, function( updatedPost ) {
-			postsStore.merge( [ updatedPost ] );
-		}.bind( this ) );
-	},
 	render: function() {
-		var posts = this.state.postIds.map( function( id ) {
-			return postsStore.posts[ id ];
-		} );
-		return <Posts posts={ posts } onPostLike={ this.onPostLike } />;
+		var childProps = {
+			posts: this.state.postIds.map( function( id ) {
+				return postsStore.posts[ id ];
+			} ),
+			onPostLike: this.onPostLike
+		};
+		return React.addons.cloneWithProps( this.props.children, childProps );
 	}
 } );
 
@@ -113,7 +85,7 @@ var Posts = React.createClass( {
 			<div className="posts">
 				{
 					this.props.posts.map( function( post ) {
-						return <Post post={ post } onLike={ this.props.onPostLike }/>;
+						return <Post key={ post.title } post={ post } onLike={ this.props.onPostLike }/>;
 					}.bind( this ) )
 				}
 			</div>
@@ -123,7 +95,6 @@ var Posts = React.createClass( {
 
 var Post = React.createClass( {
 	onLike: function() {
-		console.log( 'like' );
 		this.props.onLike( this.props.post );
 	},
 	render: function() {
