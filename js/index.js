@@ -85,7 +85,7 @@ var Posts = React.createClass( {
 			<div className="posts">
 				{
 					this.props.posts.map( function( post ) {
-						return <Post key={ post.title } post={ post } onLike={ this.props.onPostLike }/>;
+						return <Post key={ post.id } post={ post } onLike={ this.props.onPostLike }/>;
 					}.bind( this ) )
 				}
 			</div>
