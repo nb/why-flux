@@ -39,6 +39,11 @@ var App = React.createClass( {
 var postsStore = new PostsStore();
 
 var PostsData = React.createClass( {
+	getInitialState: function() {
+		return {
+			posts: []
+		};
+	},
 	propTypes: {
 		children: React.PropTypes.element.isRequired,
 		filter: React.PropTypes.string
@@ -65,15 +70,17 @@ var PostsData = React.createClass( {
         } );
     },
 	componentWillMount: function() {
-		this.load();
 		postsStore.registerChangeCallback( this.onPostChange );
+		this.load();
 	},
 	onPostChange: function() {
-		this.forceUpdate();
+		this.setState( {
+			posts: this.state.postIds.map( postsStore.get.bind( postsStore ) )
+		} );
 	},
 	render: function() {
 		var childProps = {
-			posts: this.state.postIds.map( postsStore.get.bind( postsStore ) ),
+			posts: this.state.posts,
 			onPostLike: this.onPostLike
 		};
 		return React.addons.cloneWithProps( this.props.children, childProps );
