@@ -204,71 +204,88 @@ var Posts = React.createClass( {
 ```
 
 All looks good. Can you spot the bug?
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+
 That’s right – if a post is in both the “featured” and “recent” lists and we like it, the count doesn’t update in the other list.
+
+## Store
+
+With increasing application complexity having multiple data sources quickly leads to out-of-sync issues, just like the like counts example above. If we had a central place to keep posts it would solve the problem – any part of app could reference the same data and this central “store” would notify the controller views that the data changed. This way we will have a master copy of each post and all of its occurrences will be in sync.
+
+For simplicity’s sake, let’s use the store just as dumb storage with a single `change` event. We will keep the remote requests code and more granular events away for the store for now.
+
+Here is a sample implementation. Three are three public methods:
+
+* `get( id )` retrieves a single post by ID
+* `registerChangeCallback( callback )` adds a listener, fired of anything in the store changes
+* `merge( posts )` for bringing in new posts to the store – for not it’s the only way to update the store without going through a back-door
+
+```
+var PostsStore = function() {
+	this.posts = {};
+	this.changeCallbacks = [];
+};
+PostsStore.prototype.get = function( id ) {
+	return this.posts[ id ];
+};
+PostsStore.prototype.registerChangeCallback = function( callback ) {
+	this.changeCallbacks.push( callback );
+};
+PostsStore.prototype.merge = function( newPosts ) {
+	newPosts.forEach( function( post ) {
+		this.posts[ post.id ] = post;
+	}.bind( this ) );
+	this.changeCallbacks.forEach( function( callback ) {
+		setTimeout( callback, 0 );
+	} );
+};
+```
+
+Here is also the updated `PostsData` controller-view, which will be listening for store changes.
+
+Notes:
+
+* When a requests succeeds we pass the full objects to the store and keep only the IDs
+* We need the IDs so that when a post is updated in store and we get the notification, we will know which posts to update and pass to the children
+* In order to simplify re-rendering and enable optimizations, we will keep a shallow copy of the full objects in the state
+
+```
+var PostsData = React.createClass( {
+  …
+	load: function() {
+		var apiCall = this.callByFilter[ this.props.filter ] || this.callByFilter.default;
+		apiCall( function( posts ) {
+			this.setState( {
+				postIds: posts.map( function( post ) {
+					return post.id;
+				} )
+			} );
+			postsStore.merge( posts );
+		}.bind( this ) );
+	},
+	componentWillMount: function() {
+		postsStore.registerChangeCallback( this.onPostChange );
+		this.load();
+	},
+	onPostChange: function() {
+		this.setState( {
+			posts: this.state.postIds.map( postsStore.get.bind( postsStore ) )
+		} );
+	},
+  onPostLike: function( post ) {
+      API.like( post.id, function( updatedPost ) {
+          postsStore.merge( [ updatedPost ] );
+      } );
+  },
+  …
+} );
+```
+
+## Dependent stores
+
+## Actions in stores
+
+## Action touching multiple stores
+
+## A store used in many actions
+
+Users – they are returned everywhere. If we need to add a dependent store, we will have to touch many many actions.
