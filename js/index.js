@@ -23,14 +23,14 @@ var App = React.createClass( {
 			<div>
 				<h1>Featured Posts</h1>
 				<hr />
-				<PostsFetcher filter="featured">
+				<PostsData filter="featured">
 					<Posts />
-				</PostsFetcher>
+				</PostsData>
 				<h1>Latest Posts</h1>
 				<hr />
-				<PostsFetcher filter="latest">
+				<PostsData filter="latest">
 					<Posts />
-				</PostsFetcher>
+				</PostsData>
 			</div>
 		);
 	}
@@ -38,7 +38,7 @@ var App = React.createClass( {
 
 var postsStore = new PostsStore();
 
-var PostsFetcher = React.createClass( {
+var PostsData = React.createClass( {
 	propTypes: {
 		children: React.PropTypes.element.isRequired,
 		filter: React.PropTypes.string
