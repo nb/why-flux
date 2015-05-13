@@ -3,6 +3,9 @@ var PostsStore = function() {
 	this.posts = {};
 	this.changeCallbacks = [];
 };
+PostsStore.prototype.get = function( id ) {
+	return this.posts[ id ];
+};
 PostsStore.prototype.registerChangeCallback = function( callback ) {
 	this.changeCallbacks.push( callback );
 };
@@ -70,9 +73,7 @@ var PostsFetcher = React.createClass( {
 	},
 	render: function() {
 		var childProps = {
-			posts: this.state.postIds.map( function( id ) {
-				return postsStore.posts[ id ];
-			} ),
+			posts: this.state.postIds.map( postsStore.get.bind( postsStore ) ),
 			onPostLike: this.onPostLike
 		};
 		return React.addons.cloneWithProps( this.props.children, childProps );
