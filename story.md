@@ -125,7 +125,7 @@ var Posts = React.createClass( {
 
 Since the data components have functionality similar to a classic controller, let’s call them **controller-views**. A big advantage over classic controllers is that we can use them at any level of our component hierarchy, not only at the top. Some routing systems like [react-router](TODO) are more flexible with nesting controllers.
 
-## Likes
+## Feature: Likes
 
 How would our friends know we’ve read a post if we haven’t liked it?
 
@@ -207,7 +207,7 @@ All looks good. Can you spot the bug?
 
 That’s right – if a post is in both the “featured” and “recent” lists and we like it, the count doesn’t update in the other list.
 
-## Object Stores
+## Flux: Object Stores
 
 With increasing application complexity, having multiple data sources quickly leads to out-of-sync issues, just like the like counts example above. If we had a central place to keep posts it would solve the problem – any part of app could reference the same data and this central “store” would notify the controller views that the data changed. This way we will have a master copy of each post and all of its occurrences will be in sync.
 
