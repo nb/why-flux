@@ -207,9 +207,9 @@ All looks good. Can you spot the bug?
 
 That’s right – if a post is in both the “featured” and “recent” lists and we like it, the count doesn’t update in the other list.
 
-## Store
+## Object Stores
 
-With increasing application complexity having multiple data sources quickly leads to out-of-sync issues, just like the like counts example above. If we had a central place to keep posts it would solve the problem – any part of app could reference the same data and this central “store” would notify the controller views that the data changed. This way we will have a master copy of each post and all of its occurrences will be in sync.
+With increasing application complexity, having multiple data sources quickly leads to out-of-sync issues, just like the like counts example above. If we had a central place to keep posts it would solve the problem – any part of app could reference the same data and this central “store” would notify the controller views that the data changed. This way we will have a master copy of each post and all of its occurrences will be in sync.
 
 For simplicity’s sake, let’s use the store just as dumb storage with a single `change` event. We will keep the remote requests code and more granular events away for the store for now.
 
@@ -242,11 +242,9 @@ PostsStore.prototype.merge = function( newPosts ) {
 
 Here is also the updated `PostsData` controller-view, which will be listening for store changes.
 
-Notes:
-
 * When a requests succeeds we pass the full objects to the store and keep only the IDs
-* We need the IDs so that when a post is updated in store and we get the notification, we will know which posts to update and pass to the children
-* In order to simplify re-rendering and enable optimizations, we will keep a shallow copy of the full objects in the state
+* We need the IDs so that when a post is updated in the store and we are notified, we will know which posts to update and pass to the children
+* In order to simplify re-rendering and enable optimizations, we will keep a shallow copy of the full objects in the state. Otherwise we will need to call `forceUpdate()`.
 
 ```
 var PostsData = React.createClass( {
