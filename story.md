@@ -217,7 +217,7 @@ Here is a sample implementation. Three are three public methods:
 
 * `get( id )` retrieves a single post by ID
 * `registerChangeCallback( callback )` adds a listener, fired of anything in the store changes
-* `merge( posts )` for bringing in new posts to the store – for not it’s the only way to update the store without going through a back-door
+* `merge( posts )` for bringing in new posts to the store – this is the only way to update the store without going through a back-door
 
 ```
 var PostsStore = function() {
