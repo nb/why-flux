@@ -209,17 +209,17 @@ That’s right – if a post is in both the “featured” and “recent” list
 
 ## Flux: Object Stores
 
-With increasing application complexity, having multiple data sources quickly leads to out-of-sync issues, just like the like counts example above. If we had a central place to keep posts it would solve the problem – any part of app could reference the same data and this central “store” would notify the controller views that the data changed. This way we will have a master copy of each post and all of its occurrences will be in sync.
+With increasing application complexity, having multiple data sources quickly leads to out-of-sync issues, just like the like counts example above. If we had a central place to keep posts it would solve the problem – any part of the application could reference the same data and this central “store” would notify the controller views that the data changed. This way we will have a master copy of each post and all of its occurrences will be in sync.
 
-For simplicity’s sake, let’s use the store just as dumb storage with a single `change` event. We will keep the remote requests code and more granular events away for the store for now.
+Let’s call this central place a “store” and for simplicity’s sake, let’s use it only as a dumb storage with a single `change` event. We will keep the remote requests code and more granular events out for the store for now.
 
 Here is a sample implementation. Three are three public methods:
 
 * `get( id )` retrieves a single post by ID
-* `registerChangeCallback( callback )` adds a listener, fired of anything in the store changes
-* `merge( posts )` for bringing in new posts to the store – this is the only way to update the store without going through a back-door
+* `registerChangeCallback( callback )` adds a listener, fired if anything in the store changes
+* `merge( posts )` for bringing in new posts to the store – this is the only way to update the store without going through a back-door (manually editing the property)
 
-```
+```javascript
 var PostsStore = function() {
 	this.posts = {};
 	this.changeCallbacks = [];
@@ -243,10 +243,10 @@ PostsStore.prototype.merge = function( newPosts ) {
 Here is also the updated `PostsData` controller-view, which will be listening for store changes.
 
 * When a requests succeeds we pass the full objects to the store and keep only the IDs
-* We need the IDs so that when a post is updated in the store and we are notified, we will know which posts to update and pass to the children
+* We need the IDs so that when a single post is updated in the store and we are notified, we will know how to recreate the list of posts
 * In order to simplify re-rendering and enable optimizations, we will keep a shallow copy of the full objects in the state. Otherwise we will need to call `forceUpdate()`.
 
-```
+```javascript
 var PostsData = React.createClass( {
   …
 	load: function() {
