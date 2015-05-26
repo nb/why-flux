@@ -41,6 +41,7 @@ var postsStore = new PostsStore();
 var PostsData = React.createClass( {
 	getInitialState: function() {
 		return {
+			postIds: [],
 			posts: []
 		};
 	},
